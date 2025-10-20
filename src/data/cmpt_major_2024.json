@@ -59,7 +59,6 @@
       "options": ["MATH 232", "MATH 240"]
     },
 
-
     {
       "id": "ud-breadth",
       "title": "Table I Breadth (5 courses from distinct columns; CMPT 307 mandatory counts as one column)",
@@ -139,18 +138,11 @@
       "credits": 45
     },
 
-
     {
       "id": "total-degree-units",
       "title": "Total Degree Units",
       "type": "CREDITS_MIN",
       "credits": 120
-    },
-    {
-      "id": "wqb-tracking",
-      "title": "WQB Tracking (optional UI-only)",
-      "type": "INFO",
-      "note": "W(6): CMPT 105W + CMPT 376W; Q(6) & UB(6): satisfied by MATH; B-Sci(3): MACM 101; still need B-Hum(6) and B-Soc(6) elsewhere."
     }
   ]
 }
