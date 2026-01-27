@@ -38,7 +38,7 @@ export default function Progress() {
         <div>
           <h1>
             {profile.displayName
-              ? `${profile.displayName}, here are your suggested courses`
+              ? `hi there, ${profile.displayName}, here are your suggested courses`
               : 'Here are your suggested courses'}
           </h1>
           <p className="muted">
