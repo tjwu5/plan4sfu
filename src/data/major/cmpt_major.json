@@ -1,0 +1,14 @@
+{
+  "name": "Computing Science Major",
+  "faculty": "Faculty of Applied Sciences",
+  "major": "Computing Science",
+  "requiredCourses": [
+    "CMPT 120",
+    "CMPT 125",
+    "CMPT 225",
+    "CMPT 276",
+    "CMPT 295",
+    "MACM 101",
+    "MATH 150"
+  ]
+}

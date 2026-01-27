@@ -1,0 +1,6 @@
+[
+  { "courseId": "CMPT 125", "allOf": ["CMPT 120"] },
+  { "courseId": "CMPT 225", "allOf": ["CMPT 125"], "anyOf": ["MACM 101", "MATH 150"] },
+  { "courseId": "CMPT 295", "allOf": ["CMPT 225"] },
+  { "courseId": "CMPT 310", "allOf": ["CMPT 225", "CMPT 276"] }
+]
