@@ -1,35 +1,64 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import type { ReactNode } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import BinderLayout from './components/binder/BinderLayout'
+import { useDegreePlan } from './hooks/useDegreePlan'
+import Browse from './pages/Browse'
+import Landing from './pages/Landing'
+import Plan from './pages/Plan'
+import Progress from './pages/Progress'
+import Settings from './pages/Settings'
+import Setup from './pages/Setup'
 
-function App() {
-  const [count, setCount] = useState(0)
+function RequireSetup({ children }: { children: ReactNode }) {
+  const [selectedPlanId] = useDegreePlan()
+  if (!selectedPlanId) {
+    return <Navigate to="/setup" replace />
+  }
+  return <>{children}</>
+}
 
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route element={<BinderLayout />}>
+        <Route path="/setup" element={<Setup />} />
+        <Route
+          path="/progress"
+          element={
+            <RequireSetup>
+              <Progress />
+            </RequireSetup>
+          }
+        />
+        <Route
+          path="/plan"
+          element={
+            <RequireSetup>
+              <Plan />
+            </RequireSetup>
+          }
+        />
+        <Route
+          path="/browse"
+          element={
+            <RequireSetup>
+              <Browse />
+            </RequireSetup>
+          }
+        />
+        <Route path="/explore" element={<Navigate to="/browse" replace />} />
+        <Route
+          path="/settings"
+          element={
+            <RequireSetup>
+              <Settings />
+            </RequireSetup>
+          }
+        />
+        <Route path="*" element={<Navigate to="/progress" replace />} />
+      </Route>
+    </Routes>
   )
 }
-export default App
 
