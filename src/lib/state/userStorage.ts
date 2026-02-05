@@ -1,4 +1,8 @@
 import type { CompletedCourse, Preferences, Profile } from '../../types'
+import {
+  normalizeCourseCode,
+  splitCourseCode,
+} from '../courses/courseCode'
 
 export type UserData = {
   profile: Profile
@@ -34,6 +38,18 @@ export const defaultUserData: UserData = {
   preferences: defaultPreferences,
 }
 
+const normalizeStoredCourses = (courses: CompletedCourse[]) =>
+  courses.map((course) => {
+    const normalizedCourse = normalizeCourseCode(course.course || '')
+    const split = splitCourseCode(normalizedCourse)
+    return {
+      ...course,
+      subject: split.dept || course.subject?.trim().toUpperCase(),
+      number: split.num || course.number?.trim().toUpperCase(),
+      course: normalizedCourse,
+    }
+  })
+
 export function loadUserData(): UserData {
   if (typeof localStorage === 'undefined') {
     return defaultUserData
@@ -54,7 +70,7 @@ export function loadUserData(): UserData {
           ...defaultPreferences,
           ...(parsed.preferences ?? {}),
         },
-        courses: parsed.courses ?? [],
+        courses: normalizeStoredCourses(parsed.courses ?? []),
       }
     } catch {
       // fall through to legacy migration
@@ -71,7 +87,7 @@ export function loadUserData(): UserData {
       return {
         ...defaultUserData,
         profile: { ...defaultProfile, ...(parsed.profile ?? {}) },
-        courses: parsed.courses ?? [],
+        courses: normalizeStoredCourses(parsed.courses ?? []),
       }
     } catch {
       return defaultUserData

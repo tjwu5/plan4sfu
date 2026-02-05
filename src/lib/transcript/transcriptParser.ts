@@ -1,4 +1,5 @@
 import type { CompletedCourse, ParsedTranscript, Profile } from '../../types'
+import { normalizeCourseCode } from '../courses/courseCode'
 
 const TERM_PATTERN =
   /^(20\d{2})\s+(Spring|Summer|Fall|Winter|Intersession)/i
@@ -43,15 +44,12 @@ const parseUnits = (token: string) => {
   return Number.isNaN(value) ? 0 : value
 }
 
-const normalizeCourseId = (subject: string, number: string) =>
-  `${subject} ${number}`.trim()
-
 const parseCourseLine = (line: string, term: string | null) => {
   const match = line.match(/^([A-Z]{2,4})\s*([0-9]{2,3}[A-Z]?)\s+(.+)$/)
   if (!match) return null
 
-  const subject = match[1]
-  const number = match[2]
+  const subject = match[1].toUpperCase()
+  const number = match[2].toUpperCase()
   const remainder = match[3]
   const parts = remainder.split(/\s+/)
   if (parts.length < 3) return null
@@ -95,7 +93,7 @@ const parseCourseLine = (line: string, term: string | null) => {
     term: term ?? 'Unknown Term',
     subject,
     number,
-    course: normalizeCourseId(subject, number),
+    course: normalizeCourseCode(`${subject} ${number}`),
     title: title || 'Untitled',
     unitsAttempted,
     unitsCompleted,

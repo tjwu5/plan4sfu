@@ -7,6 +7,7 @@ type CartPanelProps = {
   onRemove: (index: number) => void
   onPreferencesChange: (prefs: Preferences) => void
   onGenerate: () => void
+  onCourseClick?: (offering: Offering) => void
 }
 
 export default function CartPanel({
@@ -16,6 +17,7 @@ export default function CartPanel({
   onRemove,
   onPreferencesChange,
   onGenerate,
+  onCourseClick,
 }: CartPanelProps) {
   return (
     <div className="card stack">
@@ -26,9 +28,12 @@ export default function CartPanel({
         <ul className="course-list">
           {selections.map((offering, index) => (
             <li key={`${offering.courseId}-${offering.section}-${index}`}>
-              <strong>
+              <button
+                className="course-code"
+                onClick={() => onCourseClick?.(offering)}
+              >
                 {offering.courseId} {offering.section}
-              </strong>
+              </button>
               <span className="course-meta">
                 {offering.days.join(' ')} {offering.startMinutes}-
                 {offering.endMinutes}

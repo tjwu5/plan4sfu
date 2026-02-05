@@ -1,9 +1,10 @@
 import { NavLink, Outlet } from 'react-router-dom'
 
 const tabs = [
-  { label: 'Progress', to: '/progress', colorClass: 'tab-yellow' },
-  { label: 'Plan', to: '/plan', colorClass: 'tab-blue' },
-  { label: 'Browse', to: '/browse', colorClass: 'tab-green' },
+  { label: 'Dashboard', to: '/dashboard', colorClass: 'tab-yellow' },
+  { label: 'Progress', to: '/progress', colorClass: 'tab-blue' },
+  { label: 'Plan', to: '/plan', colorClass: 'tab-green' },
+  { label: 'Browse', to: '/browse', colorClass: 'tab-pink' },
   { label: 'Settings', to: '/settings', colorClass: 'tab-pink' },
 ]
 

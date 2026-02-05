@@ -11,7 +11,8 @@ import {
   getRequirementStatuses,
   summarizeProgress,
 } from '../lib/degree/degreeProgress'
-import { getEligibleCourses } from '../lib/eligibility/eligibilityEngine'
+import { evaluateCSRequirements } from '../lib/degree/csRequirementsEngine'
+import { getEligibilityReport } from '../lib/eligibility/eligibilityEngine'
 import { loadPrereqRules } from '../lib/eligibility/prereqRulesLoader'
 
 export default function Progress() {
@@ -30,7 +31,17 @@ export default function Progress() {
     : []
   const summary = summarizeProgress(statuses)
   const remaining = getRemainingRequirements(statuses)
-  const eligible = getEligibleCourses(loadPrereqRules(), courses)
+  const eligibilityReport = getEligibilityReport(
+    profile,
+    courses,
+    loadPrereqRules(),
+  )
+  const csReport =
+    selectedPlanId && selectedPlanId.includes('cmpt')
+      ? evaluateCSRequirements({
+          completedCourses: courses.map((course) => course.course),
+        })
+      : null
 
   return (
     <div className="page">
@@ -59,7 +70,24 @@ export default function Progress() {
             percent={summary.percent}
           />
           <RemainingRequirements remaining={remaining} />
-          <EligibleCourses courses={eligible} />
+          <EligibleCourses report={eligibilityReport} />
+          {csReport && (
+            <div className="card stack">
+              <h3>Concentrations</h3>
+              <ul className="course-list">
+                {csReport.concentrations.map((area) => (
+                  <li key={area.area}>
+                    <span className="course-code">{area.area}</span>
+                    <span className="muted">
+                      {area.isSatisfied
+                        ? 'Satisfied'
+                        : `Missing ${area.missingCoursesCount} course(s), ${area.missing400Count} 400-level`}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>

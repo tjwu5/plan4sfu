@@ -270,6 +270,31 @@ textarea {
   box-shadow: 0 4px 8px rgba(116, 90, 60, 0.05);
 }
 
+.course-list button.course-code {
+  background: none;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  color: #5c4b3d;
+  cursor: pointer;
+  text-align: left;
+}
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.chip {
+  border: 1px solid #eadfce;
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  background: #fff7ea;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
 .course-tile-meta {
   font-size: 0.75rem;
   color: #7a6a5b;
@@ -301,6 +326,68 @@ textarea {
   padding: 1rem;
   display: grid;
   gap: 1rem;
+}
+
+.course-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.course-drawer-card {
+  position: relative;
+  z-index: 1;
+  width: min(560px, 100%);
+  max-height: 85vh;
+  overflow-y: auto;
+  background: #fffdf7;
+  border-radius: 12px 12px 0 0;
+  border: 1px solid #e7dccb;
+  box-shadow: 0 12px 24px rgba(116, 90, 60, 0.12);
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.drawer-section {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.drawer-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  border: 1px solid transparent;
+}
+
+.badge-ok {
+  background: #dce9cf;
+  border-color: #c3d9b0;
+  color: #415c32;
+}
+
+.badge-plan {
+  background: #d9e7f6;
+  border-color: #b7cfe6;
+  color: #385b7a;
+}
+
+.badge-missing {
+  background: #f6d1d8;
+  border-color: #e8bfc7;
+  color: #7a3f43;
 }
 
 .course-modal-header {

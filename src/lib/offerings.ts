@@ -1,5 +1,6 @@
 import type { Offering } from '../types'
 import type { OutlinesSectionDetail } from '../types/sfuOutlines'
+import { normalizeCourseCode, splitCourseCode } from './courses/courseCode'
 
 type NormalizeMeta = {
   year: number
@@ -25,13 +26,15 @@ export function normalizeSectionDetailToOfferings(
   detail: OutlinesSectionDetail,
   meta: NormalizeMeta,
 ): Offering[] {
+  const normalizedCourseId = normalizeCourseCode(`${meta.dept} ${meta.number}`)
+  const { dept, num } = splitCourseCode(normalizedCourseId)
   const scheduleBlocks = detail.schedule ?? []
   if (scheduleBlocks.length === 0) {
     return [
       {
-        courseId: `${meta.dept.toUpperCase()} ${meta.number}`,
-        dept: meta.dept,
-        number: meta.number,
+        courseId: normalizedCourseId,
+        dept,
+        number: num,
         title: detail.info?.title,
         section: meta.section,
         campus: undefined,
@@ -46,9 +49,9 @@ export function normalizeSectionDetailToOfferings(
   }
 
   return scheduleBlocks.map((block) => ({
-    courseId: `${meta.dept.toUpperCase()} ${meta.number}`,
-    dept: meta.dept,
-    number: meta.number,
+    courseId: normalizedCourseId,
+    dept,
+    number: num,
     title: detail.info?.title,
     section: meta.section,
     campus: block.campus,

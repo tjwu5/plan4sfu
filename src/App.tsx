@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import BinderLayout from './components/binder/BinderLayout'
 import { useDegreePlan } from './hooks/useDegreePlan'
 import Browse from './pages/Browse'
+import Dashboard from './pages/Dashboard'
 import Landing from './pages/Landing'
 import Plan from './pages/Plan'
 import Progress from './pages/Progress'
@@ -23,6 +24,14 @@ export default function App() {
       <Route path="/" element={<Landing />} />
       <Route element={<BinderLayout />}>
         <Route path="/setup" element={<Setup />} />
+        <Route
+          path="/dashboard"
+          element={
+            <RequireSetup>
+              <Dashboard />
+            </RequireSetup>
+          }
+        />
         <Route
           path="/progress"
           element={
@@ -56,7 +65,7 @@ export default function App() {
             </RequireSetup>
           }
         />
-        <Route path="*" element={<Navigate to="/progress" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>
   )

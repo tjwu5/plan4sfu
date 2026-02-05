@@ -1,12 +1,10 @@
 import type { CompletedCourse, DegreePlan, Requirement } from '../../types'
+import { normalizeCourseCode } from '../courses/courseCode'
 
 export type RequirementStatus = Requirement & { satisfied: boolean }
 
-const normalizeCourseId = (courseId: string) =>
-  courseId.replace(/\s+/g, '').toUpperCase()
-
 const getCompletedCourseIds = (courses: CompletedCourse[]) =>
-  new Set(courses.map((course) => normalizeCourseId(course.course)))
+  new Set(courses.map((course) => normalizeCourseCode(course.course)))
 
 export function getRequirementStatuses(
   plan: DegreePlan,
@@ -15,7 +13,8 @@ export function getRequirementStatuses(
   const completed = getCompletedCourseIds(courses)
   return plan.requiredCourses.map((requirement) => ({
     ...requirement,
-    satisfied: completed.has(normalizeCourseId(requirement.courseId)),
+    courseId: normalizeCourseCode(requirement.courseId),
+    satisfied: completed.has(normalizeCourseCode(requirement.courseId)),
   }))
 }
 

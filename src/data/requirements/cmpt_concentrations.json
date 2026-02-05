@@ -1,0 +1,93 @@
+{
+  "areas": [
+    {
+      "area": "AI",
+      "courses": [
+        "CMPT 310",
+        "CMPT 313",
+        "CMPT 322",
+        "CMPT 340",
+        "CMPT 410",
+        "CMPT 411",
+        "CMPT 413",
+        "CMPT 417",
+        "CMPT 419",
+        "CMPT 420"
+      ]
+    },
+    {
+      "area": "Visual",
+      "courses": [
+        "CMPT 361",
+        "CMPT 363",
+        "CMPT 365",
+        "CMPT 412",
+        "CMPT 461",
+        "CMPT 464",
+        "CMPT 466",
+        "CMPT 467",
+        "CMPT 469"
+      ]
+    },
+    {
+      "area": "Systems",
+      "courses": [
+        "CMPT 300",
+        "CMPT 307",
+        "CMPT 303",
+        "CMPT 305",
+        "CMPT 371",
+        "CMPT 379",
+        "CMPT 403",
+        "CMPT 431",
+        "CMPT 433",
+        "CMPT 435",
+        "CMPT 450",
+        "CMPT 471",
+        "CMPT 479",
+        "CMPT 499"
+      ]
+    },
+    {
+      "area": "Info",
+      "courses": [
+        "CMPT 353",
+        "CMPT 354",
+        "CMPT 362",
+        "CMPT 372",
+        "CMPT 441",
+        "CMPT 454",
+        "CMPT 456",
+        "CMPT 459",
+        "CMPT 474"
+      ]
+    },
+    {
+      "area": "PL&SE",
+      "courses": [
+        "CMPT 373",
+        "CMPT 383",
+        "CMPT 384",
+        "CMPT 473",
+        "CMPT 475",
+        "CMPT 477",
+        "CMPT 489"
+      ]
+    },
+    {
+      "area": "Theory",
+      "courses": [
+        "CMPT 307",
+        "CMPT 308",
+        "CMPT 404",
+        "CMPT 405",
+        "CMPT 406",
+        "CMPT 407",
+        "CMPT 409",
+        "CMPT 476",
+        "MACM 300",
+        "MACM 476"
+      ]
+    }
+  ]
+}

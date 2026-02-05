@@ -3,10 +3,14 @@ import SearchPanel from '../components/plan/SearchPanel'
 import CartPanel from '../components/plan/CartPanel'
 import WeeklyGrid from '../components/plan/WeeklyGrid'
 import DebugPanel from '../components/plan/DebugPanel'
+import CourseDetailDrawer from '../components/course/CourseDetailDrawer'
 import { usePreferences } from '../hooks/usePreferences'
+import { useCompletedCourses } from '../hooks/useCompletedCourses'
 import { normalizeSectionDetailToOfferings } from '../lib/offerings'
 import { findConflicts } from '../lib/scheduleLogic'
 import { generateSchedules } from '../lib/scheduleGenerator'
+import { evaluatePlan } from '../lib/plan/planEvaluator'
+import { loadPrereqRules, loadPrereqGraph } from '../lib/eligibility/prereqRulesLoader'
 import type { Offering, Preferences } from '../types'
 import type { OutlinesListItem } from '../types/sfuOutlines'
 import {
@@ -22,6 +26,7 @@ type Term = Preferences['targetTerm']
 
 export default function Plan() {
   const [preferences, setPreferences] = usePreferences()
+  const [completedCourses] = useCompletedCourses()
   const [term, setTerm] = useState<Term>(preferences.targetTerm)
   const [years, setYears] = useState<OutlinesListItem[]>([])
   const [terms, setTerms] = useState<OutlinesListItem[]>([])
@@ -33,6 +38,15 @@ export default function Plan() {
   const [generated, setGenerated] = useState<Offering[][]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showTimetable, setShowTimetable] = useState(false)
+  const [copyStatus, setCopyStatus] = useState<string | null>(null)
+  const [drawerCourse, setDrawerCourse] = useState<{
+    courseId: string
+    title?: string
+    dept: string
+    number: string
+    section: string
+  } | null>(null)
 
   useEffect(() => {
     if (
@@ -147,6 +161,75 @@ export default function Plan() {
 
   const conflicts = useMemo(() => findConflicts(selected), [selected])
 
+  const planEvaluation = useMemo(() => {
+    if (selected.length === 0) return null
+    const graph = loadPrereqGraph()
+    const rules = loadPrereqRules()
+    return evaluatePlan({
+      profile: {},
+      completedCourses: completedCourses.map((course) => course.course),
+      plan: {
+        terms: [
+          {
+            id: `${term.year}-${term.term}`,
+            label: `${term.term} ${term.year}`,
+            courses: selected.map((item) => item.courseId),
+          },
+        ],
+      },
+      prereqRules: rules,
+      prereqGraph: graph,
+    })
+  }, [completedCourses, selected, term.term, term.year])
+
+  const exportRows = useMemo(() => {
+    const termLabel = `${term.term} ${term.year}`
+    const uniqueCourses = Array.from(
+      new Set(selected.map((item) => item.courseId)),
+    )
+    return uniqueCourses.map((course) => ({
+      term: termLabel,
+      course,
+    }))
+  }, [selected, term.term, term.year])
+
+  const exportText = useMemo(() => {
+    if (exportRows.length === 0) return ''
+    const lines = exportRows.map((row) => `${row.term}: ${row.course}`)
+    return lines.join('\n')
+  }, [exportRows])
+
+  const exportCsv = useMemo(() => {
+    if (exportRows.length === 0) return ''
+    const header = 'Term,Course'
+    const lines = exportRows.map((row) => `${row.term},${row.course}`)
+    return [header, ...lines].join('\n')
+  }, [exportRows])
+
+  const handleCopy = async () => {
+    if (!exportText) return
+    try {
+      await navigator.clipboard.writeText(exportText)
+      setCopyStatus('Copied to clipboard.')
+    } catch (err) {
+      console.error(err)
+      setCopyStatus('Unable to copy. Please try again.')
+    }
+    window.setTimeout(() => setCopyStatus(null), 2000)
+  }
+
+  const handleDownload = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+  }
+
   const handleGenerate = () => {
     const courseIds = Array.from(new Set(selected.map((item) => item.courseId)))
     const offeringsByCourse = results.reduce<Record<string, Offering[]>>(
@@ -169,9 +252,9 @@ export default function Plan() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h1>Schedule Builder</h1>
+          <h1>Plan Evaluation</h1>
           <p className="muted">
-            Search SFU outlines and collect sections to build schedules.
+            Build a term plan and get decision support for feasibility.
           </p>
         </div>
       </div>
@@ -229,8 +312,92 @@ export default function Plan() {
             onRemove={removeFromCart}
             onPreferencesChange={setPreferences}
             onGenerate={handleGenerate}
+            onCourseClick={(offering) =>
+              setDrawerCourse({
+                courseId: offering.courseId,
+                title: offering.title,
+                dept: offering.dept,
+                number: offering.number,
+                section: offering.section,
+              })
+            }
           />
-          <WeeklyGrid offerings={selected} />
+          <div className="card stack">
+            <div className="plan-meta">
+              <h3>Optional timetable view</h3>
+              <label className="toggle">
+                <input
+                  type="checkbox"
+                  checked={showTimetable}
+                  onChange={(event) => setShowTimetable(event.target.checked)}
+                />
+                Show timetable
+              </label>
+            </div>
+            {showTimetable ? (
+              <WeeklyGrid offerings={selected} />
+            ) : (
+              <p className="muted">Toggle on to preview a timetable layout.</p>
+            )}
+          </div>
+          {planEvaluation && (
+            <div className="card stack">
+              <h3>Plan Evaluation</h3>
+              {planEvaluation.termReports.map((report) => (
+                <div key={report.termId} className="stack">
+                  <strong>{report.termId}</strong>
+                  {report.infeasible.length > 0 ? (
+                    <div className="status status-error">
+                      {report.infeasible.map((item) => item.course).join(', ')}
+                      {' '}missing prereqs
+                    </div>
+                  ) : (
+                    <div className="status status-ok">No prereq issues.</div>
+                  )}
+                  <ul className="course-list">
+                    {report.explanations.slice(0, 4).map((line) => (
+                      <li key={line} className="muted">
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="card stack">
+            <h3>Export Plan</h3>
+            {exportRows.length === 0 ? (
+              <p className="muted">Add courses to export your plan.</p>
+            ) : (
+              <>
+                <div className="table-actions">
+                  <button
+                    onClick={() =>
+                      handleDownload(
+                        exportText,
+                        `plan-${term.term}-${term.year}.txt`,
+                      )
+                    }
+                  >
+                    Download text
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleDownload(
+                        exportCsv,
+                        `plan-${term.term}-${term.year}.csv`,
+                      )
+                    }
+                  >
+                    Download CSV
+                  </button>
+                  <button onClick={handleCopy}>Copy to clipboard</button>
+                </div>
+                {copyStatus && <span className="status">{copyStatus}</span>}
+              </>
+            )}
+          </div>
           {generated.length > 0 && (
             <div className="card stack">
               <h3>Generated Schedules</h3>
@@ -250,6 +417,25 @@ export default function Plan() {
           <DebugPanel offering={results[0]} />
         </div>
       </div>
+      <CourseDetailDrawer
+        open={drawerCourse !== null}
+        onClose={() => setDrawerCourse(null)}
+        courseCode={drawerCourse?.courseId ?? null}
+        completedCourses={completedCourses.map((course) => course.course)}
+        plannedCourses={selected.map((item) => item.courseId)}
+        initialTitle={drawerCourse?.title}
+        outlineContext={
+          drawerCourse
+            ? {
+                year: term.year,
+                term: term.term,
+                dept: drawerCourse.dept,
+                number: drawerCourse.number,
+                section: drawerCourse.section,
+              }
+            : undefined
+        }
+      />
     </div>
   )
 }

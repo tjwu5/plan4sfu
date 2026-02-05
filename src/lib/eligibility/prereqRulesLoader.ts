@@ -1,4 +1,5 @@
 import type { PrereqRule } from './eligibilityEngine'
+import { buildPrereqGraph } from './prereqGraph'
 
 type RulesJson = PrereqRule[]
 
@@ -9,4 +10,8 @@ export function loadPrereqRules(): PrereqRule[] {
     const data = (module as { default?: RulesJson }).default
     return Array.isArray(data) ? data : []
   })
+}
+
+export function loadPrereqGraph() {
+  return buildPrereqGraph(loadPrereqRules())
 }

@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
 import type { CompletedCourse } from '../../types'
 import { useCompletedCourses } from '../../hooks/useCompletedCourses'
+import {
+  normalizeCourseCode,
+  splitCourseCode,
+} from '../../lib/courses/courseCode'
 
 type CourseModalProps = {
   course: CompletedCourse
@@ -13,9 +17,6 @@ const toNumber = (value: string) => {
   const parsed = Number.parseFloat(value)
   return Number.isNaN(parsed) ? 0 : parsed
 }
-
-const normalizeCourseId = (subject: string, number: string) =>
-  `${subject.toUpperCase()} ${number}`.trim()
 
 const makeEmptyCourse = (): CompletedCourse => ({
   term: '',
@@ -40,13 +41,17 @@ function CourseModal({ course, onSave, onDelete, onClose }: CourseModalProps) {
   }
 
   const handleSave = () => {
-    const subject = draft.subject.trim().toUpperCase()
-    const number = draft.number.trim().toUpperCase()
+    const normalizedCourse = normalizeCourseCode(
+      `${draft.subject} ${draft.number}`,
+    )
+    const split = splitCourseCode(normalizedCourse)
+    const subject = split.dept || draft.subject.trim().toUpperCase()
+    const number = split.num || draft.number.trim().toUpperCase()
     const normalized = {
       ...draft,
       subject,
       number,
-      course: normalizeCourseId(subject, number),
+      course: normalizedCourse,
       title: draft.title.trim() || 'Untitled',
       unitsAttempted: toNumber(String(draft.unitsAttempted)),
       unitsCompleted: toNumber(String(draft.unitsCompleted)),
